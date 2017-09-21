@@ -100,6 +100,7 @@ static void configuration_complete(void * p_unused)
 
 static bool generic_get_cb(const simple_on_off_server_t * p_server)
 {
+    __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "Got GET command, return LED_PIN_NUMBER %u\n", hal_led_pin_get(LED_PIN_NUMBER));
     return hal_led_pin_get(LED_PIN_NUMBER);
 }
 
@@ -108,6 +109,64 @@ static bool generic_set_cb(const simple_on_off_server_t * p_server, bool value)
     __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "Got SET command to %u\n", value);
     hal_led_pin_set(LED_PIN_NUMBER, value);
     return value;
+}
+
+/*****************************************************************************
+ * Listening to beacon
+ *****************************************************************************/
+static uint8_t ibeacon_prefix[] ={0x02, 0x01, 0x06, 0x1A, 0xFF, 0x4C, 0x00, 0x02, 0x15};
+#define IBEACON_PREFIX_LEN 9
+
+static bool check_ibeacon_header(uint8_t *payload, uint8_t *header)
+{
+    int i;
+
+    for(i=0; i<IBEACON_PREFIX_LEN; i++){
+      if(payload[i] != header[i])
+        return false;
+    }
+
+    return true;
+}
+
+void publish_state_beacon(simple_on_off_server_t * p_server, uint8_t * data, uint16_t len);
+#define BEACON_COUNT 10
+#define UUID_LEN 16
+#define RSSI_LEN 1
+#define BID_LEN 1
+#define PAYLOAD_LEN UUID_LEN+RSSI_LEN+BID_LEN
+#define UUID_OFFSET 9
+#define BID_OFFSET UUID_OFFSET+19
+static void rx_callback(const nrf_mesh_adv_packet_rx_data_t * p_rx_data)
+{
+    static int count=0;
+    uint8_t payload[PAYLOAD_LEN];
+
+    LEDS_OFF(BSP_LED_0_MASK);  /* @c LED_RGB_RED_MASK on pca10031 */
+    char msg[128];
+    //sprintf(msg, "RX [@%u]: RSSI: %3d ADV TYPE: %x ADDR: [%02x:%02x:%02x:%02x:%02x:%02x]",
+    sprintf(msg, "RX [%d]: RSSI: %d ADV TYPE: %x ADDR: [%x %x %x %x %x %x]",
+            p_rx_data->timestamp,
+            p_rx_data->rssi,
+            p_rx_data->adv_type,
+            p_rx_data->addr.addr[0],
+            p_rx_data->addr.addr[1],
+            p_rx_data->addr.addr[2],
+            p_rx_data->addr.addr[3],
+            p_rx_data->addr.addr[4],
+            p_rx_data->addr.addr[5]);
+    if(check_ibeacon_header(p_rx_data->p_payload, ibeacon_prefix) == true){
+    //if((check_ibeacon_header(p_rx_data->p_payload, ibeacon_prefix) == true) && !(count++%BEACON_COUNT)){
+        __LOG_XB(LOG_SRC_APP, LOG_LEVEL_INFO, msg, p_rx_data->p_payload, p_rx_data->length);
+
+        __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "BeaconID: %X\n", p_rx_data->p_payload[BID_OFFSET]);
+
+        payload[0]=p_rx_data->p_payload[BID_OFFSET];
+        payload[1]=p_rx_data->rssi;
+        memcpy(payload+2, p_rx_data->p_payload + UUID_OFFSET, UUID_LEN);
+        publish_state_beacon(&m_server, payload, PAYLOAD_LEN);
+    }
+    LEDS_ON(BSP_LED_0_MASK);  /* @c LED_RGB_RED_MASK on pca10031 */
 }
 
 int main(void)
@@ -134,6 +193,9 @@ int main(void)
 #endif
 
     ERROR_CHECK(nrf_mesh_node_config(&config_params));
+
+    /* Start listening for incoming packets */
+    nrf_mesh_rx_cb_set(rx_callback);
 
     while (true)
     {

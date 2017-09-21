@@ -98,6 +98,7 @@ static uint16_t m_unprov_index;
 
 /* Forward declarations */
 static void client_status_cb(const simple_on_off_client_t * p_self, simple_on_off_status_t status, uint16_t src);
+static void client_beacon_cb(const simple_on_off_client_t * p_self, const uint8_t * data, uint16_t len);
 
 /*****************************************************************************
  * Static functions
@@ -135,6 +136,7 @@ static void access_setup(void)
      for (uint32_t i = 0; i < CLIENT_COUNT; ++i)
     {
         m_clients[i].status_cb = client_status_cb;
+        m_clients[i].beacon_cb = client_beacon_cb;
         ERROR_CHECK(simple_on_off_client_init(&m_clients[i], i));
     }
 
@@ -181,9 +183,25 @@ static uint32_t server_index_get(const simple_on_off_client_t * p_client)
     return index;
 }
 
+
+static void client_beacon_cb(const simple_on_off_client_t * p_self, const uint8_t * data, uint16_t len)
+{
+    uint32_t server_index = server_index_get(p_self);
+
+    char msg[128];
+    sprintf(msg, "sensor(%d) BeaconID(%d) RSSI(%d)", server_index, data[0], data[1]);
+
+    //__LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "client_beacon_cb() - sniffer-%d\n", server_index);
+    __LOG_XB(LOG_SRC_APP, LOG_LEVEL_INFO, msg, data, len);
+
+}
+
 static void client_status_cb(const simple_on_off_client_t * p_self, simple_on_off_status_t status, uint16_t src)
 {
     uint32_t server_index = server_index_get(p_self);
+
+    __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "client_status_cb() %d\n", status);
+
     switch (status)
     {
         case SIMPLE_ON_OFF_STATUS_ON:
@@ -314,7 +332,8 @@ void provisioner_prov_complete_cb(const nrf_mesh_evt_prov_complete_t * p_prov_da
 
 int main(void)
 {
-    __LOG_INIT(LOG_SRC_APP | LOG_SRC_ACCESS, LOG_LEVEL_DBG1, LOG_CALLBACK_DEFAULT);
+    //__LOG_INIT(LOG_SRC_APP | LOG_SRC_ACCESS, LOG_LEVEL_DBG1, LOG_CALLBACK_DEFAULT);
+    __LOG_INIT(LOG_SRC_APP, LOG_LEVEL_DBG1, LOG_CALLBACK_DEFAULT);
     __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "----- BLE Mesh Light Control Client Demo -----\n");
 
     m_device_state = DEVICE_STATE_PROVISIONING;
@@ -338,5 +357,6 @@ int main(void)
             button_event_handler(button_number);
         }
         nrf_mesh_process();
+        //__LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "*** m_device_state=%d\n", m_device_state);
     }
 }

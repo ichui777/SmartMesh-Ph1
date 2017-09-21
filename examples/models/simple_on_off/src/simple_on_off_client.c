@@ -48,6 +48,7 @@
 #include "nrf_mesh.h"
 #include "nrf_mesh_assert.h"
 
+#include "log.h"
 /*****************************************************************************
  * Static variables
  *****************************************************************************/
@@ -144,9 +145,34 @@ static void rx_status_cb(access_model_handle_t handle, const access_message_rx_t
     p_client->status_cb(p_client, on_off_status, p_message->meta_data.src.value);
 }
 
+static void rx_beacon_cb(access_model_handle_t handle, const access_message_rx_t * p_message, void * p_args)
+{
+    simple_on_off_client_t * p_client = p_args;
+    NRF_MESH_ASSERT(p_client->beacon_cb != NULL);
+
+    if (!is_valid_source(p_client, p_message))
+    {
+        return;
+    }
+
+     //__LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "rx_beacon_cb() - rx:ttl %d, stmp %X, stmp_d %X\n", 
+     //                                    p_message->meta_data.ttl, p_message->meta_data.timestamp, p_message->meta_data.timestamp_delta);
+     //__LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "rx_beacon_cb() - rx:ttl %d, src %X, dst %X\n", 
+     //                                    p_message->meta_data.ttl, p_message->meta_data.src.value, p_message->meta_data.dst.value);
+
+    uint16_t length = sizeof(p_message->p_data);
+/*
+    __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "rx_beacon_cb() - rx: %x %x %x %x %x %x %x %x \n", 
+                                        p_message->p_data[0],p_message->p_data[1],p_message->p_data[2],p_message->p_data[3],
+                                        p_message->p_data[4],p_message->p_data[5],p_message->p_data[6],p_message->p_data[7]);
+*/
+    p_client->beacon_cb(p_client, p_message->p_data, p_message->length);
+}
+
 static const access_opcode_handler_t m_opcode_handlers[] =
 {
-    {{SIMPLE_ON_OFF_OPCODE_STATUS, ACCESS_COMPANY_ID_NORDIC}, rx_status_cb}
+    {{SIMPLE_ON_OFF_OPCODE_STATUS, ACCESS_COMPANY_ID_NORDIC}, rx_status_cb},
+    {{SIMPLE_ON_OFF_OPCODE_BEACON, ACCESS_COMPANY_ID_NORDIC}, rx_beacon_cb}
 };
 
 /*****************************************************************************

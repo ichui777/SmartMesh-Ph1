@@ -57,7 +57,8 @@ typedef enum
     SIMPLE_ON_OFF_OPCODE_SET = 0xC1,            /**< Simple OnOff Set. */
     SIMPLE_ON_OFF_OPCODE_GET = 0xC2,            /**< Simple OnOff Get. */
     SIMPLE_ON_OFF_OPCODE_SET_UNRELIABLE = 0xC3, /**< Simple OnOff Set Unreliable. */
-    SIMPLE_ON_OFF_OPCODE_STATUS = 0xC4          /**< Simple OnOff Status. */
+    SIMPLE_ON_OFF_OPCODE_STATUS = 0xC4,         /**< Simple OnOff Status. */
+    SIMPLE_ON_OFF_OPCODE_BEACON = 0xCC          /**< Simple OnOff Status. */
 } simple_on_off_opcode_t;
 
 /** Message format for the Simple OnOff Set message. */

@@ -229,6 +229,7 @@ static void mesh_evt_handler(nrf_mesh_evt_t * p_evt)
 
         case NRF_MESH_EVT_MESSAGE_RECEIVED:
         case NRF_MESH_EVT_TX_COMPLETE:
+            __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "iic: other NRF_MESH_EVTs\n");
             break;
 
         default:

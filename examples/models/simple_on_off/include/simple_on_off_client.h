@@ -76,6 +76,7 @@ typedef struct __simple_on_off_client simple_on_off_client_t;
  * @param[in] src    Element address of the remote server.
  */
 typedef void (*simple_on_off_status_cb_t)(const simple_on_off_client_t * p_self, simple_on_off_status_t status, uint16_t src);
+typedef void (*simple_on_off_beacon_cb_t)(const simple_on_off_client_t * p_self, const uint8_t * data, uint16_t len);
 
 /** Simple OnOff Client state structure. */
 struct __simple_on_off_client
@@ -84,6 +85,8 @@ struct __simple_on_off_client
     access_model_handle_t model_handle;
     /** Status callback called after status received from server. */
     simple_on_off_status_cb_t status_cb;
+    /** iBeacon callback called after iBeacon received from server. */
+    simple_on_off_beacon_cb_t beacon_cb;
     /** Internal client state. */
     struct
     {

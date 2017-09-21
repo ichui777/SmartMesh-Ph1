@@ -268,14 +268,7 @@
           Name="nRF52832_XXAA Release"
           build_exclude_from_build="Yes" />
       </file>
-      <file file_name="../toolchain/ses/ses_nrf52_startup.s">
-        <configuration
-          Name="nRF51422_XXAC Debug"
-          build_exclude_from_build="Yes" />
-        <configuration
-          Name="nRF51422_XXAC Release"
-          build_exclude_from_build="Yes" />
-      </file>
+      <file file_name="../toolchain/ses/ses_nrf52_startup.s" />
       <file file_name="../toolchain/system_nrf51422.c">
         <configuration
           Name="nRF52832_XXAA Debug"
@@ -284,26 +277,13 @@
           Name="nRF52832_XXAA Release"
           build_exclude_from_build="Yes" />
       </file>
-      <file file_name="../toolchain/system_nrf52.c">
-        <configuration
-          Name="nRF51422_XXAC Debug"
-          build_exclude_from_build="Yes" />
-        <configuration
-          Name="nRF51422_XXAC Release"
-          build_exclude_from_build="Yes" />
-      </file>
+      <file file_name="../toolchain/system_nrf52.c" />
     </folder>
     <folder Name="SEGGER RTT">
       <file file_name="../lib/rtt/src/SEGGER_RTT.c" />
       <file file_name="../lib/rtt/src/SEGGER_RTT_printf.c" />
     </folder>
   </project>
-  <configuration
-    Name="nRF51422_XXAC Debug"
-    inherited_configurations="Common Debug Settings;nRF51422_XXAC Target Settings" />
-  <configuration
-    Name="nRF51422_XXAC Release"
-    inherited_configurations="nRF51422_XXAC Target Settings;Common Release Settings" />
   <configuration
     Name="nRF52832_XXAA Debug"
     inherited_configurations="nRF52832_XXAA Target Settings;Common Debug Settings" />

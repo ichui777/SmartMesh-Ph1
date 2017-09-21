@@ -43,6 +43,7 @@
 
 #include "access.h"
 #include "nrf_mesh_assert.h"
+#include "log.h"
 
 /*****************************************************************************
  * Static functions
@@ -76,6 +77,17 @@ static void publish_state(simple_on_off_server_t * p_server, bool value)
     msg.opcode.company_id = ACCESS_COMPANY_ID_NORDIC;
     msg.p_buffer = (const uint8_t *) &status;
     msg.length = sizeof(status);
+    (void) access_model_publish(p_server->model_handle, &msg);
+}
+
+void publish_state_beacon(simple_on_off_server_t * p_server, uint8_t * data, uint16_t len)
+{
+    access_message_tx_t msg;
+    msg.opcode.opcode = SIMPLE_ON_OFF_OPCODE_BEACON;
+    msg.opcode.company_id = ACCESS_COMPANY_ID_NORDIC;
+    msg.p_buffer = (const uint8_t *) data;
+    msg.length = len;
+    __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "beacon length: %d\n", msg.length);
     (void) access_model_publish(p_server->model_handle, &msg);
 }
 
