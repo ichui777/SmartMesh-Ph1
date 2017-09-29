@@ -69,7 +69,7 @@
 #define TRANSPORT_SAR_TX_TIMEOUT_DEFAULT       (10 * 1000 * 1000)
 
 /** Maximum number of concurrent transport SAR RX sessions. */
-#define TRANSPORT_SAR_RX_SESSIONS_MAX          (2)
+#define TRANSPORT_SAR_RX_SESSIONS_MAX          (10)
 
 /** Maximum number of concurrent transport SAR TX sessions. */
 #define TRANSPORT_SAR_TX_SESSIONS_MAX          (2)

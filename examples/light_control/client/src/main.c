@@ -183,17 +183,26 @@ static uint32_t server_index_get(const simple_on_off_client_t * p_client)
     return index;
 }
 
+typedef struct {
+uint8_t  rssi0;
+uint8_t  rssi1;
+uint8_t  rssi2;
+} SensorRssi;
+
+SensorRssi sensorRssi[256]={0};
+uint8_t rssiBuff[256][3]={0};
 
 static void client_beacon_cb(const simple_on_off_client_t * p_self, const uint8_t * data, uint16_t len)
 {
     uint32_t server_index = server_index_get(p_self);
 
-    char msg[128];
-    sprintf(msg, "sensor(%d) BeaconID(%d) RSSI(%d)", server_index, data[0], data[1]);
-
-    //__LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "client_beacon_cb() - sniffer-%d\n", server_index);
-    __LOG_XB(LOG_SRC_APP, LOG_LEVEL_INFO, msg, data, len);
-
+    //char msg[128];
+    //sprintf(msg, "sensor(%d) BeaconID(%d) RSSI(%d)", server_index, data[0], data[1]);
+    //__LOG_XB(LOG_SRC_APP, LOG_LEVEL_INFO, msg, data, len);
+  
+    //rssiBuff[server_index][data[0]]=data[1];
+    rssiBuff[data[0]][server_index]=data[1];
+    __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "sensor(%d) BID(%d) RSSI(%d)\n", server_index, data[0], data[1]);
 }
 
 static void client_status_cb(const simple_on_off_client_t * p_self, simple_on_off_status_t status, uint16_t src)
@@ -333,6 +342,7 @@ void provisioner_prov_complete_cb(const nrf_mesh_evt_prov_complete_t * p_prov_da
 int main(void)
 {
     //__LOG_INIT(LOG_SRC_APP | LOG_SRC_ACCESS, LOG_LEVEL_DBG1, LOG_CALLBACK_DEFAULT);
+    //__LOG_INIT(LOG_SRC_APP|LOG_SRC_TRANSPORT, LOG_LEVEL_DBG1, LOG_CALLBACK_DEFAULT);
     __LOG_INIT(LOG_SRC_APP, LOG_LEVEL_DBG1, LOG_CALLBACK_DEFAULT);
     __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "----- BLE Mesh Light Control Client Demo -----\n");
 

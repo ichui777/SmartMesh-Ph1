@@ -189,6 +189,7 @@ static void trs_sar_drop_session(trs_sar_ctx_t * p_sar_ctx, nrf_mesh_sar_session
     NRF_MESH_ASSERT(p_sar_ctx != NULL);
 
     __INTERNAL_EVENT_PUSH(INTERNAL_EVENT_SAR_CANCELLED, reason, 0, NULL);
+            __LOG(LOG_SRC_TRANSPORT, LOG_LEVEL_ERROR, "iic: NRF_MESH_EVT_SAR_FAILED 1\n");
     m_send_sar_cancel_event((uint32_t) p_sar_ctx->payload, reason);
 
     m_sar_release(p_sar_ctx->payload);
@@ -373,6 +374,7 @@ static uint32_t trs_sar_seg_pkt_in(packet_mesh_t * p_mesh_packet, const nrf_mesh
 
     if (p_sar_ctx == NULL)
     {
+            __LOG(LOG_SRC_TRANSPORT, LOG_LEVEL_ERROR, "iic: NRF_MESH_EVT_SAR_FAILED 2\n");
         m_send_sar_cancel_event(0, NRF_MESH_SAR_CANCEL_REASON_NO_MEM);
         return NRF_ERROR_NO_MEM;
     }
@@ -402,6 +404,7 @@ static uint32_t trs_sar_seg_pkt_in(packet_mesh_t * p_mesh_packet, const nrf_mesh
 
         if (!replay_cache_has_room(packet_mesh_net_src_get(p_mesh_packet), packet_mesh_net_ivi_get(p_mesh_packet)))
         {
+            __LOG(LOG_SRC_TRANSPORT, LOG_LEVEL_ERROR, "iic: NRF_MESH_RX_FAILED_REASON_REPLAY_CACHE_FULL 1\n");
             (void)m_send_replay_cache_full_event(packet_mesh_net_src_get(p_mesh_packet), packet_mesh_net_ivi_get(p_mesh_packet), NRF_MESH_RX_FAILED_REASON_REPLAY_CACHE_FULL);
             status = NRF_ERROR_NO_MEM;
         }
@@ -421,6 +424,7 @@ static uint32_t trs_sar_seg_pkt_in(packet_mesh_t * p_mesh_packet, const nrf_mesh
             {
                 (void)trs_sar_pkt_ack(p_sar_ctx);
             }
+            __LOG(LOG_SRC_TRANSPORT, LOG_LEVEL_ERROR, "iic: NRF_MESH_EVT_SAR_FAILED 3\n");
             m_send_sar_cancel_event(0, NRF_MESH_SAR_CANCEL_REASON_NO_MEM);
             return status;
         }
@@ -692,6 +696,7 @@ static uint32_t trs_sar_rx_process(void)
             /* The replay cache may be full by now*/
             if (!replay_cache_has_room(p_sar_ctx->header.src, p_sar_ctx->header.ivi))
             {
+            __LOG(LOG_SRC_TRANSPORT, LOG_LEVEL_ERROR, "iic: NRF_MESH_RX_FAILED_REASON_REPLAY_CACHE_FULL 2\n");
                 m_send_replay_cache_full_event(p_sar_ctx->header.src, p_sar_ctx->header.ivi, NRF_MESH_RX_FAILED_REASON_REPLAY_CACHE_FULL);
                 p_sar_ctx->header.block_ack = 0;
                 /* We're already in failure path don't care about return of these here, but perhaps they can be pushed as events?*/
@@ -1224,6 +1229,7 @@ uint32_t transport_pkt_in(packet_net_t * p_net_packet,
                               packet_mesh_net_ivi_get(p_mesh_packet));
     if (status != NRF_SUCCESS)
     {
+            __LOG(LOG_SRC_TRANSPORT, LOG_LEVEL_ERROR, "iic: NRF_MESH_RX_FAILED_REASON_REPLAY_CACHE_FULL 3\n");
         m_send_replay_cache_full_event(src_addr,
                                        packet_mesh_net_ivi_get(p_mesh_packet),
                                        NRF_MESH_RX_FAILED_REASON_REPLAY_CACHE_FULL);

@@ -112,9 +112,9 @@ static bool generic_set_cb(const simple_on_off_server_t * p_server, bool value)
 }
 
 /*****************************************************************************
- * Listening to beacon
+ * Listening to iBeacon, company ID 0x8888
  *****************************************************************************/
-static uint8_t ibeacon_prefix[] ={0x02, 0x01, 0x06, 0x1A, 0xFF, 0x4C, 0x00, 0x02, 0x15};
+static uint8_t ibeacon_prefix[] ={0x02, 0x01, 0x06, 0x1A, 0xFF, 0x88, 0x88, 0x02, 0x15};
 #define IBEACON_PREFIX_LEN 9
 
 static bool check_ibeacon_header(uint8_t *payload, uint8_t *header)
